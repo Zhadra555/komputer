@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="5-сынып информатикасына арналған «Компьютер әлемі» интерактивті филворды.">
+<title>Компьютер әлемі — Сөздерді тап!</title>
+<style>
+:root{--navy:#14325c;--blue:#2d78bd;--pale:#edf4ff;--purple:#a88ad7;--green:#21845d;--red:#b94c4c;--line:#a9c9e9}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#f7faff,#fff8ff);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--navy)}
+main{max-width:1120px;margin:auto;padding:18px}.hero{display:flex;gap:18px;align-items:center;justify-content:space-between;background:#e6edff;border-radius:24px;padding:20px 24px;margin-bottom:16px}.hero h1{font-size:clamp(1.65rem,4vw,2.8rem);margin:0 0 5px}.hero p{margin:0;font-size:1.05rem}.hero img{width:150px;max-width:30%;height:auto}.panel{background:white;border:1px solid #d9e5f4;border-radius:20px;padding:16px;margin:14px 0;box-shadow:0 4px 16px #16335c0b}.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer;background:var(--blue);color:white}.btn.secondary{background:#e9effa;color:var(--navy)}.btn:focus-visible,.cell:focus-visible{outline:3px solid #f2a93b;outline-offset:2px}.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,1fr);gap:16px;align-items:start}.grid{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:3px;max-width:680px;margin:auto}.cell{aspect-ratio:1;border:1px solid var(--line);border-radius:5px;background:#fbfdff;color:#152f58;font-size:clamp(.72rem,2vw,1.12rem);font-weight:750;cursor:pointer;min-width:0;padding:0}.cell.selected{background:#ffe7a6;border-color:#e4a42c}.cell.found{background:#b9efd7;border-color:#4aa780;color:#124f39}.cell.preview{background:#dbe9ff}.wordlist{display:grid;grid-template-columns:1fr;gap:7px}.word{display:flex;align-items:center;gap:10px;border:1px solid #e3eaf5;border-radius:12px;padding:7px 10px}.word img{width:42px;height:42px;object-fit:contain}.word.found{background:#e5f8ef;border-color:#8fd3b1}.word .label{font-weight:750}.word small{display:block;color:#5e7190}.status{font-weight:700;margin:8px 0;min-height:1.5em}.good{color:var(--green)}.bad{color:var(--red)}.media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.media-card{border:1px solid #dfe8f4;border-radius:14px;padding:10px;text-align:center;background:#fbfdff}.media-card img{width:76px;height:76px;object-fit:contain}.media-card button{margin-top:6px}.quiz-q{padding:12px;border:1px solid #e1e9f5;border-radius:14px;margin:10px 0}.quiz-q img{width:64px;height:64px;object-fit:contain;vertical-align:middle}.quiz-q label{display:block;padding:6px;cursor:pointer}.small{font-size:.9rem;color:#526783}.poster{width:100%;height:auto;border-radius:12px;border:1px solid #e4e8f1}.video-wrap video{width:100%;max-height:380px;border-radius:12px;background:#101827}.hidden{display:none!important}.pill{display:inline-block;background:#e8efff;padding:5px 10px;border-radius:999px;font-size:.9rem;font-weight:700}
+@media(max-width:760px){main{padding:10px}.hero{padding:15px}.hero img{width:90px}.layout{grid-template-columns:1fr}.grid{gap:2px}.cell{border-radius:3px}.panel{padding:12px}.wordlist{grid-template-columns:repeat(2,minmax(0,1fr))}.word{gap:6px;padding:6px}.word img{width:32px;height:32px}.word .label{font-size:.83rem}}
+</style>
+</head>
+<body>
+<main>
+<header class="hero">
+ <div><span class="pill">ИНФОРМАТИКА · 5-СЫНЫП</span><h1>Компьютер әлемі</h1><p><strong>Сөздерді тап!</strong> Әріптер арасынан компьютерге қатысты сөздерді ізде.</p></div>
+ <img src="images/computer.svg" alt="Компьютер суреті">
+</header>
+<section class="panel">
+ <p><strong>Ойын ережесі:</strong> алдымен бірінші әріпті, содан кейін соңғы әріпті таңда. Сөз көлденең, тігінен, диагональмен және кері бағытта орналасуы мүмкін. Сөз табылғанда ол жасыл түске боялады.</p>
+ <div class="controls"><button class="btn" id="startBtn">Бастау / Қайта бастау</button><button class="btn secondary" id="clearBtn">Таңдауды тазалау</button><span class="pill" id="progress">Табылды: 0 / 13</span></div>
+ <div class="status" id="status" aria-live="polite">Бастау үшін тордағы бірінші әріпті таңда.</div>
+</section>
+<div class="layout">
+ <section class="panel">
+  <h2>Әріптер торы</h2>
+  <div id="grid" class="grid" role="group" aria-label="Сөз іздеу әріптер торы"></div>
+  <p class="small">Кеңес: сөздің басы мен соңын басыңыз. Қате таңдау болса, қайта таңдауға болады.</p>
+ </section>
+ <aside class="panel">
+  <h2>Ізделетін сөздер</h2>
+  <div id="wordlist" class="wordlist"></div>
+ </aside>
+</div>
+<section class="panel">
+ <h2>Суретке қарап, сөзді тап</h2>
+ <p>Суреттің астындағы дұрыс терминді таңда.</p>
+ <div class="media-grid" id="pictureMatch"></div>
+ <div class="status" id="pictureStatus" aria-live="polite"></div>
+</section>
+<section class="panel">
+ <h2>Білімді тексеру</h2>
+ <div id="quiz"></div>
+ <button class="btn" id="checkQuiz">Жауаптарды тексеру</button>
+ <div class="status" id="quizStatus" aria-live="polite"></div>
+</section>
+<section class="panel video-wrap">
+ <h2>Қысқа бейне</h2>
+ <p>Бұл орынға өзіңіздің «Компьютер әлемі» тақырыбындағы бейнеңізді қосыңыз.</p>
+ <video controls preload="metadata" poster="images/computer-world-poster.jpeg">
+   <source src="video/computer-world.mp4" type="video/mp4">
+   Браузеріңіз бейнені ойната алмайды.
+ </video>
+ <p class="small" id="videoHelp">Бейне көрінбесе, жоба бумасына video/computer-world.mp4 файлын қосыңыз. Бейнеңіз басқа атпен аталса, төмендегі нұсқаулықтағыдай source жолын өзгертіңіз.</p>
+</section>
+<section class="panel">
+ <h2>Бастапқы материал</h2>
+ <p>Бұл — тапсырмаға негіз болған бастапқы сурет. Сурет өзгеріссіз сақталған; интерактивті тор экранға бейімделуі және сөздер дұрыс табылуы үшін бөлек жасалған.</p>
+ <img class="poster" src="images/computer-world-poster.jpeg" alt="Компьютер әлемі: сөздерді тап — бастапқы тапсырма суреті">
+</section>
+<section class="panel">
+ <h2>Қорытынды</h2>
+ <p id="finalText">Барлық сөздерді тауып, сурет бойынша тапсырмаларға жауап бер!</p>
+</section>
+<footer class="small">Оқу ойыны · «Компьютер әлемі» · 5-сынып</footer>
+</main>
+<script>
+const WORDS = [
+ {word:"КОМПЬЮТЕР",label:"Компьютер",img:"images/computer.svg",meaning:"Ақпаратпен жұмыс істеуге арналған электрондық құрылғы."},
+ {word:"МОНИТОР",label:"Монитор",img:"images/monitor.svg",meaning:"Ақпаратты экранда көрсететін құрылғы."},
+ {word:"ПРИНТЕР",label:"Принтер",img:"images/printer.svg",meaning:"Ақпаратты қағазға басып шығаратын құрылғы."},
+ {word:"ТІНТУІР",label:"Тінтуір",img:"images/mouse.svg",meaning:"Экрандағы меңзерді басқаруға арналған құрылғы."},
+ {word:"БРАУЗЕР",label:"Браузер",img:"images/browser.svg",meaning:"Веб-беттерді ашуға арналған бағдарлама."},
+ {word:"ИНТЕРНЕТ",label:"Интернет",img:"images/internet.svg",meaning:"Дүниежүзілік компьютерлік желі."},
+ {word:"ФАЙЛ",label:"Файл",img:"images/file.svg",meaning:"Компьютерде сақталған атауы бар деректер жиынтығы."},
+ {word:"ПАПКА",label:"Қапшық",img:"images/folder.svg",meaning:"Файлдарды реттеп сақтауға арналған орын."},
+ {word:"ЭКРАН",label:"Экран",img:"images/screen.svg",meaning:"Ақпарат көрінетін бет."},
+ {word:"ПАРОЛЬ",label:"Құпиясөз",img:"images/password.svg",meaning:"Жүйеге кіруді қорғауға арналған құпия таңбалар."},
+ {word:"ЖҮЙЕ",label:"Жүйе",img:"images/system.svg",meaning:"Бірге жұмыс істейтін өзара байланысты бөліктер жиынтығы."},
+ {word:"БАҒДАРЛАМА",label:"Бағдарлама",img:"images/program.svg",meaning:"Компьютер орындайтын командалар жиынтығы."},
+ {word:"ПРОЦЕССОР",label:"Процессор",img:"images/processor.svg",meaning:"Командаларды орындайтын және деректерді өңдейтін негізгі бөлік."}
+];
+const SIZE=13;
+let board=[], placements={}, selected=[], found=new Set(), pictureAnswers={};
+const $=id=>document.getElementById(id);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function buildBoard(){
+ board=Array.from({length:SIZE},()=>Array(SIZE).fill(""));
+ placements={}; found.clear();selected=[];pictureAnswers={};
+ const dirs=[[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1],[1,-1],[-1,1]];
+ // Place long words first. Randomize attempts but keep all terms guaranteed.
+ const words=WORDS.slice().sort((a,b)=>b.word.length-a.word.length);
+ for(const item of words){
+  let placed=false;
+  for(let attempt=0;attempt<4000&&!placed;attempt++){
+   const [dr,dc]=dirs[Math.floor(Math.random()*dirs.length)];
+   const r=Math.floor(Math.random()*SIZE),c=Math.floor(Math.random()*SIZE);
+   const er=r+dr*(item.word.length-1),ec=c+dc*(item.word.length-1);
+   if(er<0||er>=SIZE||ec<0||ec>=SIZE)continue;
+   let ok=true;
+   for(let i=0;i<item.word.length;i++){const ch=board[r+dr*i][c+dc*i];if(ch && ch!==item.word[i]){ok=false;break;}}
+   if(!ok)continue;
+   const cells=[];
+   for(let i=0;i<item.word.length;i++){const rr=r+dr*i,cc=c+dc*i;board[rr][cc]=item.word[i];cells.push(rr*SIZE+cc);}
+   placements[item.word]=cells;placed=true;
+  }
+  if(!placed){buildBoard();return;}
+ }
+ const letters="АӘБВГҒДЕЁЖЗИЙКҚЛМНҢОӨПРСТУҰҮФХҺЦЧШЩЪЫІЬЭЮЯ";
+ for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++)if(!board[r][c])board[r][c]=letters[Math.floor(Math.random()*letters.length)];
+ renderGrid();renderWords();renderPictureMatch();renderQuiz();updateProgress();
+ $("status").textContent="Бастау үшін сөздің бірінші әрпін таңда.";
+ $("status").className="status";
+ $("pictureStatus").textContent="";
+ $("quizStatus").textContent="";
+ $("finalText").textContent="Барлық сөздерді тауып, сурет бойынша тапсырмаларға жауап бер!";
+}
+function renderGrid(){
+ const el=$("grid");el.innerHTML="";
+ board.forEach((row,r)=>row.forEach((ch,c)=>{
+  const b=document.createElement("button");b.className="cell";b.textContent=ch;b.type="button";b.dataset.idx=r*SIZE+c;
+  b.setAttribute("aria-label",`${r+1}-қатар, ${c+1}-баған: ${ch}`);
+  b.addEventListener("click",()=>pickCell(Number(b.dataset.idx)));
+  el.appendChild(b);
+ }));
+}
+function renderWords(){
+ const el=$("wordlist");el.innerHTML="";
+ WORDS.forEach(w=>{
+  const d=document.createElement("div");d.className="word"+(found.has(w.word)?" found":"");d.id="word-"+w.word;
+  d.innerHTML=`<img src="${w.img}" alt=""><div><span class="label">${w.label}</span><small>${found.has(w.word)?"Табылды ✓":"Ізде"} </small></div>`;
+  el.appendChild(d);
+ });
+}
+function pickCell(idx){
+ if(selected.length===0){selected=[idx];paintSelection();$("status").textContent="Енді сөздің соңғы әрпін таңда.";return;}
+ if(selected.length===1 && selected[0]===idx){selected=[];paintSelection();$("status").textContent="Таңдау тазартылды.";return;}
+ selected.push(idx);
+ const foundWord=WORDS.find(w=>!found.has(w.word)&&sameCells(placements[w.word],selected));
+ if(foundWord){
+  found.add(foundWord.word);selected=[];paintSelection();renderWords();updateProgress();
+  $("status").textContent=`Жарайсың! «${foundWord.label}» сөзін таптың!`; $("status").className="status good";
+  if(found.size===WORDS.length){$("finalText").textContent="Керемет! 13 сөздің бәрін таптың. Енді сурет бойынша тапсырмаларға жауап бер.";}
+ }else{
+  const maybe=WORDS.some(w=>!found.has(w.word)&&isStraightLine(placements[w.word],selected));
+  $("status").textContent=maybe?"Жақсы бағыт! Сөздің соңғы әрпін таңда.":"Бұл сөз емес. Бірінші және соңғы әріптерін қайта таңда.";
+  $("status").className="status bad";selected=[];paintSelection();
+ }
+}
+function sameCells(a,b){return !!a&&a.length===b.length&&(a.every((v,i)=>v===b[i])||a.every((v,i)=>v===b[b.length-1-i]));}
+function isStraightLine(cells,sel){return cells&&sel.length===2&&cells[0]===sel[0]&&cells[cells.length-1]===sel[1];}
+function paintSelection(){
+ document.querySelectorAll(".cell").forEach(b=>{b.classList.remove("selected","found","preview");});
+ found.forEach(w=>placements[w].forEach(i=>document.querySelector(`.cell[data-idx="${i}"]`)?.classList.add("found")));
+ selected.forEach(i=>document.querySelector(`.cell[data-idx="${i}"]`)?.classList.add("selected"));
+}
+function updateProgress(){$("progress").textContent=`Табылды: ${found.size} / ${WORDS.length}`;}
+function renderPictureMatch(){
+ const el=$("pictureMatch");el.innerHTML="";
+ const picks=shuffle(WORDS.slice()).slice(0,6);
+ picks.forEach(w=>{
+  const d=document.createElement("div");d.className="media-card";
+  const options=shuffle(WORDS.slice()).slice(0,4);if(!options.some(o=>o.word===w.word))options[Math.floor(Math.random()*options.length)]=w;
+  d.innerHTML=`<img src="${w.img}" alt="${w.label} суреті"><p><strong>Бұл не?</strong></p><select aria-label="Суретке сәйкес сөз" data-answer="${w.word}"><option value="">Таңда...</option>${shuffle(options).map(o=>`<option value="${o.word}">${o.label}</option>`).join("")}</select>`;
+  el.appendChild(d);
+ });
+ const b=document.createElement("button");b.className="btn";b.textContent="Суреттерді тексеру";b.addEventListener("click",()=>{
+  let score=0,total=0;el.querySelectorAll("select").forEach(s=>{total++;if(s.value===s.dataset.answer){score++;s.style.borderColor="#21845d";}else{s.style.borderColor="#b94c4c";}});
+  $("pictureStatus").textContent=`Нәтиже: ${score} / ${total}. `+(score===total?"Жарайсың! Барлығы дұрыс!":"Қызылмен белгіленген жауаптарды қайта қарап көр.");
+  $("pictureStatus").className="status "+(score===total?"good":"bad");
+ });el.appendChild(b);
+}
+const QUIZ=[
+ {q:"Қағазға мәтін мен суретті қай құрылғы басып шығарады?",opts:["Монитор","Принтер","Тінтуір"],a:"Принтер"},
+ {q:"Файлдарды реттеп сақтауға арналған орын қалай аталады?",opts:["Қапшық","Экран","Процессор"],a:"Қапшық"},
+ {q:"Веб-беттерді ашуға арналған бағдарлама қалай аталады?",opts:["Браузер","Құпиясөз","Принтер"],a:"Браузер"},
+ {q:"Жүйеге кіруді қорғауға арналған құпия таңбалар қалай аталады?",opts:["Интернет","Құпиясөз","Файл"],a:"Құпиясөз"},
+ {q:"Командаларды орындайтын компьютер бөлігі қалай аталады?",opts:["Процессор","Қапшық","Монитор"],a:"Процессор"}
+];
+function renderQuiz(){
+ $("quiz").innerHTML="";
+ QUIZ.forEach((q,i)=>{
+  const d=document.createElement("div");d.className="quiz-q";
+  d.innerHTML=`<strong>${i+1}. ${q.q}</strong>${q.opts.map(o=>`<label><input type="radio" name="q${i}" value="${o}"> ${o}</label>`).join("")}`;
+  $("quiz").appendChild(d);
+ });
+}
+$("checkQuiz").addEventListener("click",()=>{
+ let score=0,answered=0;
+ QUIZ.forEach((q,i)=>{const chosen=document.querySelector(`input[name="q${i}"]:checked`);if(chosen){answered++;if(chosen.value===q.a)score++;}});
+ $("quizStatus").textContent=`Дұрыс жауап: ${score} / ${QUIZ.length}. Жауап берілді: ${answered} / ${QUIZ.length}. `+(score===QUIZ.length?"Өте жақсы!":"Қате жауаптарды қайта оқып, тағы бір рет орында.");
+ $("quizStatus").className="status "+(score===QUIZ.length?"good":"bad");
+});
+$("startBtn").addEventListener("click",buildBoard);
+$("clearBtn").addEventListener("click",()=>{selected=[];paintSelection();$("status").textContent="Таңдау тазартылды. Бірінші әріпті таңда.";});
+buildBoard();
+</script>
+</body>
+</html>
